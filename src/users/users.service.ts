@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return this.userRepository.find({ where: { id } })
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -38,7 +38,7 @@ export class UsersService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} user`;
+    return this.userRepository.delete({ id })
   }
 
 
