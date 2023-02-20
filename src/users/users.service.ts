@@ -1,4 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  HttpException,
+  HttpStatus
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,7 +28,7 @@ export class UsersService {
       let newUser = this.userRepository.create(createUserDto)
       return await this.userRepository.save(newUser)
     } catch (error) {
-      this.handleError(error)
+      return this.handleError(error)
     }
   }
 
@@ -29,16 +36,22 @@ export class UsersService {
     return this.userRepository.find()
   }
 
-  findOne(id: number) {
-    return this.userRepository.find({ where: { id } })
+  async findOne(id: number) {
+    let user = await this.userRepository.findOne({ where: { id } })
+    if (!user) {
+      return new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+    }
+    return user
+
+
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
     return this.userRepository.update({ id }, updateUserDto)
   }
 
-  remove(id: number) {
-    return this.userRepository.delete({ id })
+  async remove(id: number) {
+    let user = await this.userRepository.delete({ id })
   }
 
 
