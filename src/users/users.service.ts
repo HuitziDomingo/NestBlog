@@ -5,11 +5,11 @@ import {
   Logger,
   HttpException,
   HttpStatus
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+} from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
+import { User } from './entities/user.entity'
 import { Repository } from 'typeorm'
 
 @Injectable()
@@ -23,6 +23,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>
   ) { }
 
+
   async create(createUserDto: CreateUserDto) {
     try {
       let newUser = this.userRepository.create(createUserDto)
@@ -32,9 +33,11 @@ export class UsersService {
     }
   }
 
+
   findAll() {
     return this.userRepository.find()
   }
+
 
   async findOne(id: number) {
     let user = await this.userRepository.findOne({ where: { id } })
@@ -42,16 +45,24 @@ export class UsersService {
       return new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
     }
     return user
-
-
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    let user = await this.userRepository.findOne({ where: { id } })
+    if (!user)
+      return new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+
     return this.userRepository.update({ id }, updateUserDto)
   }
 
+
   async remove(id: number) {
-    let user = await this.userRepository.delete({ id })
+    let user = await this.userRepository.findOne({ where: { id } })
+    if (!user)
+      return new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+
+    return this.userRepository.delete({ id })
   }
 
 
@@ -63,4 +74,6 @@ export class UsersService {
 
     throw new InternalServerErrorException('Los elementos duplicados en la base de datos no son permitidos')
   }
+
+
 }
